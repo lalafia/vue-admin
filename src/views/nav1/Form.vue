@@ -79,14 +79,21 @@
 		<!--新增界面-->
 		<el-dialog title="新增标签" size = 'tiny' v-model="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="标签ID" prop="tagCode">
+				<el-form-item label="标签ID">
 					<el-input v-model="addForm.tagCode"  auto-complete="off" readonly></el-input>
 				</el-form-item>
-				<el-form-item label="标签名称" prop="tagName">
+				<el-form-item label="标签名称">
 					<el-input v-model="addForm.tagName" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="标签类型" prop="tagType">
-					<el-input v-model="addForm.tagType" auto-complete="off"></el-input>
+				<el-form-item label="标签类型">
+					<el-select v-model="addForm.tagType" filterable placeholder="请选择">
+						<el-option
+								v-for="item in options"
+								:key="item.value"
+								:label="item.label"
+								:value="item.value">
+						</el-option>
+					</el-select>
 				</el-form-item>
 				<el-form-item label="状态">
 					<el-radio-group v-model="addForm.isEnable">
@@ -116,6 +123,16 @@
                     tagName:'',
                     tagType:''
                 },
+                options: [{
+                    value: '选项1',
+                    label: '黄金糕'
+                }, {
+                    value: '选项2',
+                    label: '双皮奶'
+                }, {
+                    value: '选项3',
+                    label: '蚵仔煎'
+                }],
                 labelList: [],
                 total: 0,
                 page: 1,
@@ -210,6 +227,8 @@
                     //NProgress.done();
                 });
             },
+            //获取类型列表
+
             //删除
             handleDel: function (index, row) {
                 this.$confirm('确认删除该标签吗?', '提示', {
