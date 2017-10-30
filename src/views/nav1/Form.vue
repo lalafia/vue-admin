@@ -116,7 +116,7 @@
     import { getTagList, deleteTagItem, batchDeleteTag, editTagItem, addTagItem } from '../../api/api';
 
     export default {
-        data() {
+        data: function() {
             return {
                 filters: {
                     tagCode: '',
@@ -204,7 +204,7 @@
                 this.filters.tagName = '';
                 this.getList();
             },
-            //获取类型定义列表
+            //获取标签列表
             getList() {
                 let param = {
                     tagCode: this.filters.tagCode,
@@ -215,19 +215,15 @@
                 this.listLoading = true;
                 //NProgress.start();
                 getTagList(param).then((res) => {
-                    if(res.data.status == 200){
-                        this.labelList = res.data.data;
-                        let status = {'Y':'启用','N':'禁用'};
-                        for(var i = 0; i < this.labelList.length;i++){
-                            this.labelList[i].isEnable = status[this.labelList[i].isEnable]
-                        }
-                    }
-                    this.msg = res.msg;
+					this.labelList = res.data.data;
+					let status = {'Y':'启用','N':'禁用'};
+					for(var i = 0; i < this.labelList.length;i++){
+						this.labelList[i].isEnable = status[this.labelList[i].isEnable]
+					}
                     this.listLoading = false;
                     //NProgress.done();
                 });
             },
-            //获取类型列表
 
             //删除
             handleDel: function (index, row) {

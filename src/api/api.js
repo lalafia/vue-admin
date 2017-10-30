@@ -7,12 +7,13 @@ var instance = axios.create({
 instance.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
 
 /*export const requestLogin = params => { return axios.post(`${base}/login`, params).then(res => res.data); };*/
-
+/*标签库接口*/
 export const getTagList = params => instance.get(`/goodsTag/findBy`, {params: params});
 export const editTagItem = params => instance.post(`/goodsTag/update`, params);
 export const deleteTagItem = params => instance.post(`/goodsTag/deleteByTagCode`, params);
 export const batchDeleteTag = params => instance.post(`/goodsTag/BatchDeleteByTagCode`, params);
 export const addTagItem = params => instance.post(`/goodsTag/insert`, params);
+
 
 /*
 export const getUserListPage = params => { return axios.get(`${base}/user/listpage`, { params: params }); };
