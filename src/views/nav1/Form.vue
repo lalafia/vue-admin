@@ -53,7 +53,7 @@
 
 		<!--编辑界面-->
 		<el-dialog title="编辑" size = 'tiny' v-model="editFormVisible" :close-on-click-modal="false">
-			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
+			<el-form :model="editForm" label-width="80px" :rules="formRules" ref="editForm">
 				<el-form-item label="标签ID" prop="tagCode">
 					<el-input v-model="editForm.tagCode" width="200" auto-complete="off" readonly></el-input>
 				</el-form-item>
@@ -78,14 +78,14 @@
 
 		<!--新增界面-->
 		<el-dialog title="新增标签" size = 'tiny' v-model="addFormVisible" :close-on-click-modal="false">
-			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
+			<el-form :model="addForm" label-width="80px" :rules="formRules" ref="addForm">
 				<el-form-item label="标签ID">
 					<el-input v-model="addForm.tagCode"  auto-complete="off" readonly></el-input>
 				</el-form-item>
-				<el-form-item label="标签名称">
+				<el-form-item label="标签名称" prop = 'tagName'>
 					<el-input v-model="addForm.tagName" auto-complete="off"></el-input>
 				</el-form-item>
-				<el-form-item label="标签类型">
+				<el-form-item label="标签类型" prop = 'tagType'>
 					<el-select v-model="addForm.tagType" filterable placeholder="请选择">
 						<el-option
 								v-for="item in options"
@@ -95,7 +95,7 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="状态">
+				<el-form-item label="状态" prop = 'isEnable'>
 					<el-radio-group v-model="addForm.isEnable">
 						<el-radio class="radio" label="Y">启用</el-radio>
 						<el-radio class="radio" label="N">禁用</el-radio>
@@ -113,7 +113,7 @@
 <script>
     import util from '../../common/js/util'
     //import NProgress from 'nprogress'
-    import { getTagList, deleteTagItem, batchDeleteTag, editTagItem, addTagItem } from '../../api/api';
+    import { getTagList, deleteTagItem, batchDeleteTag, editTagItem, addTagItem , getAllTypeList} from '../../api/api';
 
     export default {
         data: function() {
@@ -123,25 +123,17 @@
                     tagName:'',
                     tagType:''
                 },
-                options: [{
-                    value: '选项1',
-                    label: '黄金糕'
-                }, {
-                    value: '选项2',
-                    label: '双皮奶'
-                }, {
-                    value: '选项3',
-                    label: '蚵仔煎'
-                }],
+                options: [],
                 labelList: [],
                 total: 0,
-                page: 1,
+                pageNo: 1,
+                pageSize: 10,
                 listLoading: false,
                 sels: [],//列表选中列
 
                 editFormVisible: false,//编辑界面是否显示
                 editLoading: false,
-                editFormRules: {
+                formRules: {
                     isEnable:[
                         {required: true, message: '请选择状态', trigger: 'blur'}
                     ],
@@ -165,17 +157,6 @@
 
                 addFormVisible: false,//新增界面是否显示
                 addLoading: false,
-                addFormRules: {
-                    tagType: [
-                        { required: true, message: '请输入标签类型', trigger: 'blur' }
-                    ],
-                    tagName: [
-                        { required: true, message: '请输入标签名称', trigger: 'blur' }
-                    ],
-                    isEnable:[
-                        {required: true, message: '请选择状态', trigger: 'blur'}
-                    ]
-                },
                 //新增界面数据
                 addForm: {
                     "tagCode":'0',
@@ -195,7 +176,7 @@
 			 return row.sex == 1 ? '男' : row.sex == 0 ? '女' : '未知';
 			 },*/
             handleCurrentChange(val) {
-                this.page = val;
+                this.pageNo = val;
                 this.getList();
             },
             clearSearchArea(){
@@ -209,19 +190,22 @@
                 let param = {
                     tagCode: this.filters.tagCode,
                     tagType: this.filters.tagType,
-					tagName: this.filters.tagNameg
+					tagName: this.filters.tagNameg,
+                    pageNo: this.pageNo,
+                    pageSize: this.pageSize
                 };
-                console.log(param)
                 this.listLoading = true;
                 //NProgress.start();
                 getTagList(param).then((res) => {
-					this.labelList = res.data.data;
+					this.labelList = res.data.data.object;
+                    this.pageNo = res.data.data.page.page;
+                    this.total = res.data.data.page.totalCount;
+                    this.pageSize = res.data.data.page.limit;
 					let status = {'Y':'启用','N':'禁用'};
 					for(var i = 0; i < this.labelList.length;i++){
 						this.labelList[i].isEnable = status[this.labelList[i].isEnable]
 					}
                     this.listLoading = false;
-                    //NProgress.done();
                 });
             },
 
@@ -246,6 +230,18 @@
 
                 });
             },
+            //获取所有标签类型
+			getAllTypeList: function(){
+                this.addLoading = true;
+                this.options = [];
+                getAllTypeList().then((res) => {
+                    this.addLoading = false;
+                    let typeList = res.data.data;
+                    for(var i = 0; i < typeList.length; i++){
+                        this.options.push({label:typeList[i], value: typeList[i]});
+					}
+                });
+			},
             //显示编辑界面
             handleEdit: function (index, row) {
                 this.editFormVisible = true;
@@ -257,6 +253,7 @@
             //显示新增界面
             handleAdd: function () {
                 this.addFormVisible = true;
+                this.getAllTypeList();
                 this.addLoading = false;
                 this.addForm = {
                     "tagCode": 0,
@@ -313,7 +310,7 @@
                                 "tagDesc": this.addForm.tagDesc,
                                 "creator": this.addForm.creator,
                                 "isEnable": this.addForm.isEnable,
-                                "itemCodes": JSON.stringify([1,2,3])
+                                "itemCodes": this.addForm.itemCodes
                             };
                             addTagItem(para).then((res) => {
                                 this.addLoading = false;

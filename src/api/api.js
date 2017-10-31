@@ -13,7 +13,14 @@ export const editTagItem = params => instance.post(`/goodsTag/update`, params);
 export const deleteTagItem = params => instance.post(`/goodsTag/deleteByTagCode`, params);
 export const batchDeleteTag = params => instance.post(`/goodsTag/BatchDeleteByTagCode`, params);
 export const addTagItem = params => instance.post(`/goodsTag/insert`, params);
+export const getAllTypeList = params => instance.post(`/goodsTagType/findTagType`, params);
 
+
+export const getTagTypeList = params => instance.get(`/goodsTagType/findBy`, {params: params});
+export const addTagType = params => instance.post(`/goodsTagType/insert`, params);
+export const deleteTypeItem = params => instance.post(`/goodsTagType/deleteByTagId`, params);
+export const editTypeItem = params => instance.post(`/goodsTagType/update`, params);
+export const batchDeleteTypeItem = params => instance.post(`/goodsTagType/batchDeleteByTagId`, params);
 
 /*
 export const getUserListPage = params => { return axios.get(`${base}/user/listpage`, { params: params }); };
